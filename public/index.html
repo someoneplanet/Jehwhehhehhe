@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scout TF2 AI Voice</title>
+</head>
+<body>
+    <h1>Scout TF2 AI Voice</h1>
+    
+    <!-- Text to Speech Input -->
+    <textarea id="textInput" rows="4" cols="50" placeholder="Type something for Scout to say..."></textarea><br><br>
+    <button onclick="speak()">Speak as Scout</button>
+    
+    <br><br>
+    
+    <!-- Test Button -->
+    <button onclick="test()">Test Scout Voice</button>
+    
+    <br><br>
+    
+    <!-- Train Button -->
+    <h2>Train Voice</h2>
+    <input type="file" id="audioFile" accept="audio/*"><br><br>
+    <button onclick="train()">Train</button>
+
+    <br><br>
+    
+    <!-- Audio player for playing the generated voice -->
+    <audio id="audioPlayer" controls></audio>
+    
+    <script>
+        // Function to call the backend for text-to-speech
+        function speak() {
+            const text = document.getElementById('textInput').value;
+            fetch('/api/speak', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = data.audio_url;
+                audioPlayer.play();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to call the backend for testing the voice
+        function test() {
+            fetch('/api/test', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = data.audio_url;
+                audioPlayer.play();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to call the backend for training
+        function train() {
+            const audioFileInput = document.getElementById('audioFile');
+            const formData = new FormData();
+            formData.append("audio_file", audioFileInput.files[0]);
+            
+            fetch('/api/train', {
+                method: 'POST',
+                body: JSON.stringify({ audio_file: audioFileInput.files[0].name }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.status);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
+ 
